@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'open-uri'
 require 'nokogiri'
+require 'terminal-notifier'
 
 
 album = `osascript -e'tell application "iTunes"' -e'get album of current track' -e'end tell'`.chop!.to_s
@@ -8,8 +9,6 @@ title = `osascript -e'tell application "iTunes"' -e'get name of current track' -
 
 if title.split.size > 1
   title = title.gsub!(' ','-')
-else
-  title.downcase!
 end
 
 if album.split.size > 1
@@ -31,10 +30,11 @@ doc = Nokogiri::HTML(open(url))
 
 
 if lyrics==""
-  puts `terminal-notifier -message "Es wurde keine lyrics gefunden für #{title} vom Album #{album}" -title "Fehlgeschlagen"`
+  TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Fehlgeschlagen', :subtitle => "#{title.gsub('-',' ')}")
 else 
   puts `osascript -e'tell application "iTunes"' -e'set lyrics of current track to "#{lyrics}"' -e'end tell'`
-  puts `terminal-notifier -message "Lyric wurde Erfolgreich hinzugefügt für #{title} vom Album #{album}" -title "Erfolgreich"`
+  TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Erfolreich', :subtitle => "#{title.gsub('-',' ')}")
+  
 end
 
 #puts lyrics
