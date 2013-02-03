@@ -40,36 +40,36 @@ doc = Nokogiri::HTML(open(url))
     		album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"]= ly.to_s.scan(/href="([^"]*)"/)
   	end
 
-
+    MIN_PERCENT_MATCH = 0.5
     best_match=0
     link_to_best_hit=""
   	white = Text::WhiteSimilarity.new
+    similary=0
   	album_titles.each do |k,v|
-      if white.similarity(title, k) > best_match
+      sim = white.similarity(title, k)
+      if  sim > best_match && sim > MIN_PERCENT_MATCH
+        puts "bessser als #{MIN_PERCENT_MATCH} #{v}"
         link_to_best_hit = v
       end
   	end
-    puts link_to_best_hit
-    puts album
     
     
-    # dirty solution
-   url = "http://www.paksmile.com/lyrics/#{album}/#{link_to_best_hit.to_s}"
-   puts url
-    doc = Nokogiri::HTML(open(url))
+    unless link_to_best_hit==""
+      # dirty solution
+      url = "http://www.paksmile.com/lyrics/#{album}/#{link_to_best_hit.to_s}"
+      doc = Nokogiri::HTML(open(url))
  
-     lyrics=""
-     doc.xpath('//td[@bgcolor="F2FCFF"]/p').each do |ly|
-       lyrics += ly
-       lyrics += "\n\n"
-     end
-    #end dirty solution
+        
+        doc.xpath('//td[@bgcolor="F2FCFF"]/p').each do |ly|
+          lyrics += ly
+          lyrics += "\n\n"
+        end
+       #end dirty solution
+    end
 
-    puts lyrics
-    
  end
  
-
+    lyrics.gsub!("'", ' ')
 
 if lyrics==""
   TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Fehlgeschlagen', :subtitle => "#{title.gsub('-',' ')}")
@@ -78,3 +78,12 @@ else
   TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Erfolreich', :subtitle => "#{title.gsub('-',' ')}")
   
 end
+
+
+
+# TODO
+# react on arguments ["", "current", "selection", "all"]
+# 	class.current if ARGV[0]=='current' || ARGV.empty? 
+#   class.selection if ARGV[0]=='selection'
+#   class.all if ARGV[0]=='all'
+#
