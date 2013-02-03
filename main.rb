@@ -73,7 +73,11 @@ doc = Nokogiri::HTML(open(url))
  # second option
  if lyrics==""
    url = "http://www.bollywoodlyrics.com/movie_name/#{album}"
-   doc = Nokogiri::HTML(open(url))
+   begin
+     doc = Nokogiri::HTML(open(url))
+   rescue Exception => ex
+     puts "Error: #{ex}"
+   end
    
    #album names
    album_titles={}
