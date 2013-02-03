@@ -69,6 +69,43 @@ doc = Nokogiri::HTML(open(url))
 
  end
  
+ # http://www.bollywoodlyrics.com
+ # second option
+ if lyrics==""
+   url = "http://www.bollywoodlyrics.com/movie_name/#{album}"
+   doc = Nokogiri::HTML(open(url))
+   
+   #album names
+   album_titles={}
+   doc.xpath('//p[@class="entry-title"]/a').each do |ly|
+   		album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"]= ly.to_s.scan(/href="([^"]*)"/)
+   end
+   
+   best_match=0
+   link_to_best_hit=""
+ 	 white = Text::WhiteSimilarity.new
+   similary=0
+ 	 album_titles.each do |k,v|
+     sim = white.similarity(title, k)
+     if  sim > best_match && sim > MIN_PERCENT_MATCH
+       link_to_best_hit = v
+     end
+ 	 end
+   
+   unless link_to_best_hit==""
+     # dirty solution
+     doc = Nokogiri::HTML(open(link_to_best_hit.to_s))
+       doc.xpath('//div[@class="entry-content"]/pre').each do |ly|
+         lyrics += ly
+       end
+      #end dirty solution
+   end
+   
+   
+ end
+ 
+ 
+ 
     lyrics.gsub!("'", ' ')
 
 if lyrics==""
