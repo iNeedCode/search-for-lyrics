@@ -123,4 +123,7 @@ end
 # 	class.current if ARGV[0]=='current' || ARGV.empty? 
 #   class.selection if ARGV[0]=='selection'
 #   class.all if ARGV[0]=='all'
+#  
+#
+#  hinzufügen noch zu notifications >>>>> TerminalNotifier.notify('Hello World', :activate => 'com.apple.Safari')
 #
