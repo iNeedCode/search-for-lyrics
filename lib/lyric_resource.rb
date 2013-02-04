@@ -1,8 +1,10 @@
+require 'support/text_helper'
 require 'open-uri'
 require 'nokogiri'
 require 'text'
 
 class LyricResource
+  include TextHelper
   
   @@filepath = File.join(APP_ROOT, "searched_itunes_titles.txt")
 
@@ -74,31 +76,17 @@ class LyricResource
     doc.xpath('//p[@class="entry-title"]/a').each do |ly|
     		album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"]= ly.to_s.scan(/href="([^"]*)"/)
     end
+  
+    find_title = find_album_title_on_page(album_titles)
     
-    best_match=0
-    link_to_best_hit=""
-  	white = Text::WhiteSimilarity.new
-    similary=0
-  	album_titles.each do |k,v|
-      sim = white.similarity(@track[:title], k)
-      if  sim > best_match && sim > MIN_PERCENT_MATCH
-        link_to_best_hit = v
-      end
-    end
-    
-    unless link_to_best_hit==""
-      # dirty solution
-      doc = open_link(link_to_best_hit.to_s)
-        doc.xpath('//div[@class="entry-content"]/pre').each do |ly|
-          lyrics += ly
+    unless find_title==""
+      doc = open_link(find_title.to_s)
+        doc.xpath('//div[@class="entry-content"]/pre').each do |line|
+          lyrics += line
         end
-       #end dirty solution
     end
-    if lyrics.size > 50
-      @notification[:lyric] = lyrics
-      @notification[:found] = true
-      @notification[:title] = "Erfolgreich"
-    end
+    
+    set_notification(lyrics)
     return @notification[:found]
   end
   
@@ -130,6 +118,14 @@ class LyricResource
       file.puts "#{[@track[:title],@track[:album]].join("\t")}\n"
     end
     return true
+  end
+  
+  def set_notification(lyrics)
+    if lyrics.size > 50
+      @notification[:lyric] = lyrics
+      @notification[:found] = true
+      @notification[:title] = "Erfolgreich"
+    end
   end
   
 end
