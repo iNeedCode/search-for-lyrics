@@ -7,6 +7,7 @@ require 'text'
 
 album = `osascript -e'tell application "iTunes"' -e'get album of current track' -e'end tell'`.chop!.to_s
 title = `osascript -e'tell application "iTunes"' -e'get name of current track' -e'end tell'`.chop!.to_s
+ressource = "www"
 
 if title.split.size > 1
   title = title.gsub!(' ','-')
@@ -29,6 +30,7 @@ doc = Nokogiri::HTML(open(url))
    lyrics += "\n\n"
  end
 
+ressource = "www.paksmile.com"
  
  if lyrics==""
    	title = `osascript -e'tell application "iTunes"' -e'get name of current track' -e'end tell'`.chop!.to_s
@@ -75,6 +77,7 @@ doc = Nokogiri::HTML(open(url))
    url = "http://www.bollywoodlyrics.com/movie_name/#{album}"
    begin
      doc = Nokogiri::HTML(open(url))
+     ressource = "www.bollywoodlyrics.com"
    rescue Exception => ex
      puts "Error: #{ex}"
    end
@@ -113,11 +116,10 @@ doc = Nokogiri::HTML(open(url))
     lyrics.gsub!("'", ' ')
 
 if lyrics==""
-  TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Fehlgeschlagen', :subtitle => "#{title.gsub('-',' ')}")
+  TerminalNotifier.notify('', :title => 'Fehlgeschlagen', :subtitle => "#{title.gsub('-',' ')} : #{album.gsub('-',' ').capitalize}")
 else 
   puts `osascript -e'tell application "iTunes"' -e'set lyrics of current track to "#{lyrics}"' -e'end tell'`
-  TerminalNotifier.notify("Album: #{album.gsub('-',' ').capitalize}", :title => 'Erfolreich', :subtitle => "#{title.gsub('-',' ')}")
-  
+  TerminalNotifier.notify("fetch from: #{ressource}", :title => 'Erfolreich', :subtitle => "#{title.gsub('-',' ')} : #{album.gsub('-',' ').capitalize}", :activate => 'com.apple.iTunes')
 end
 
 
