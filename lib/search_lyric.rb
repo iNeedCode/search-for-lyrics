@@ -6,22 +6,29 @@ class SearchLyric
   
   def initialize()
     @track = current_itunes_track
-    #check if already searched in archiv
-    #perform_search(@track)
     perform_search
   end
   
   def current_itunes_track
-    {:title=>"Titel", :album=>"Album"}
+    track={}
+    track[:album]=`osascript -e'tell application "iTunes"' -e'get album of current track' -e'end tell'`.chop!.to_s
+    track[:title]=`osascript -e'tell application "iTunes"' -e'get name of current track' -e'end tell'`.chop!.to_s
+    track
   end
   
   def perform_search
-    rslt = LyricResource.new(@track)
-    notification_center(rslt.notification)
+    rslt = LyricResource.new(@track).notification
+    if rslt[:found]
+      #add_lyric_to_itunes(rslt[:lyrics].to_s)
+      puts "lyric hinzugefgt"
+      add_lyric_to_itunes(rslt[:lyric])
+    end
+    notification_center(rslt)
   end
   
   def add_lyric_to_itunes(lyric)
-    # applescript
+    lyric.to_s.gsub!("'", ' ')
+    puts `osascript -e'tell application "iTunes"' -e'set lyrics of current track to "#{lyric}"' -e'end tell'`
   end
   
   def notification_center(nofication_option={})

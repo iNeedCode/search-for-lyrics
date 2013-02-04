@@ -1,3 +1,7 @@
+require 'open-uri'
+require 'nokogiri'
+require 'text'
+
 class LyricResource
   
   @@filepath = File.join(APP_ROOT, "searched_itunes_titles.txt")
@@ -29,19 +33,24 @@ class LyricResource
     titles
   end
   
-  def notification
-    return @notification
-  end
-  
   def initialize(track)
     @track = track
-    @notification={:title => "Bereits vorher schon gesucht!", :subtitle => "#{@track[:title]} : #{@track[:album]}" }
+    @notification={ :found=>false ,:subtitle => "#{@track[:title]} : #{@track[:album]}"}
     if already_searched?
-      @notification[:message] = "Datensatz aus Textfile löschen"
+      @notification[:title] = "Bereits gesucht!"
+      @notification[:message] = "Für erneute Suche Datensatz aus Textfile löschen"
     else
       puts "WEBSEITEN SUCHEN ......."
-      save_lyric
+      @notification[:message] = "www.XXXXXXXX.com"
+      @notification[:title] = "Erfolgreich oder Fehlgeschlagen"
+      @notification[:found] = false
+      @notification[:lyric] = ""
+      save_lyric_to_textfile
     end
+  end
+  
+  def notification
+    return @notification
   end
   
   def already_searched?
@@ -62,7 +71,7 @@ class LyricResource
     return false
   end
   
-  def save_lyric
+  def save_lyric_to_textfile
     return false unless LyricResource.file_usable?
     File.open(@@filepath, 'a') do |file|
       file.puts "#{[@track[:title],@track[:album]].join("\t")}\n"
