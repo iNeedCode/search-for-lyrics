@@ -19,8 +19,6 @@ class SearchLyric
   def perform_search
     rslt = LyricResource.new(@track).notification
     if rslt[:found]
-      #add_lyric_to_itunes(rslt[:lyrics].to_s)
-      puts "lyric hinzugefgt"
       add_lyric_to_itunes(rslt[:lyric])
     end
     notification_center(rslt)
