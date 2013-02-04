@@ -41,6 +41,7 @@ class LyricResource
     if already_searched?
       @notification[:title] = "Bereits Erfolgreich gefunden!"
       @notification[:message] = "Für erneute Suche Datensatz aus Textfile löschen"
+      @notification[:activate] = 'com.apple.iTunes'
     else
       search_for_lyrics
       save_lyric_to_textfile if @notification[:found]
@@ -95,23 +96,41 @@ class LyricResource
   def search_under_paksmile
     @notification[:message] = "www.paksmile.com"
     lyrics=""
-    url = "http://www.bollywoodlyrics.com/movie_name/#{@track[:album]}"
+    album=@track[:album].downcase
+    album = album.gsub(' ','-') if album.split.size > 1
+    title = @track[:title].downcase
+    title = title.gsub(' ','-') if title.split.size > 1
+    
+    url = "http://www.paksmile.com/lyrics/#{album}/#{title}.asp"
     doc = open_link(url)
     return false unless doc
-
-    #save all album titles
-    album_titles={}
-    doc.xpath('//p[@class="entry-title"]/a').each do |ly|
-    		album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"]= ly.to_s.scan(/href="([^"]*)"/)
-    end
-  
-    find_title = find_album_title_on_page(album_titles)
     
-    unless find_title==""
-      doc = open_link(find_title.to_s)
-        doc.xpath('//div[@class="entry-content"]/pre').each do |line|
-          lyrics += line
-        end
+    doc.xpath('//td[@bgcolor="F2FCFF"]/p').each do |ly|
+      lyrics += ly
+      lyrics += "\n\n"
+    end
+    
+    #if the title didnt match the url, search under the album name
+    if lyrics.empty?
+      url = "http://www.paksmile.com/lyrics/#{album}/"
+      doc = open_link(url)
+      
+    	album_titles={}
+    	doc.xpath('//table[@bgcolor="#F2FCFF"]//strong/a').each do |ly|
+      		album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"]= ly.to_s.scan(/href="([^"]*)"/)
+    	end
+      
+      find_title = find_album_title_on_page(album_titles)
+      
+      unless find_title.empty?
+        url = "http://www.paksmile.com/lyrics/#{album}/#{find_title.to_s}"
+        doc = open_link(url)
+      
+        doc.xpath('//td[@bgcolor="F2FCFF"]/p').each do |ly|
+          lyrics += ly
+          lyrics += "\n\n"
+        end 
+      end    
     end
     
     set_notification(lyrics)
@@ -153,6 +172,7 @@ class LyricResource
       @notification[:lyric] = lyrics
       @notification[:found] = true
       @notification[:title] = "Erfolgreich"
+      @notification[:activate] = 'com.apple.iTunes'
     end
   end
   
