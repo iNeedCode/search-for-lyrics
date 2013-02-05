@@ -55,7 +55,7 @@ class LyricResource
   end
   
   def search_under_bollywoodlyrics
-    @notification[:message] = "www.bollywoodlyrics.com"
+    ressource = "www.bollywoodlyrics.com"
     lyrics=""
     album=@track[:album].downcase
     album = album.gsub(' ','-') if album.split.size > 1
@@ -89,12 +89,12 @@ class LyricResource
     #lyrics = lyrics.delete(lyrics.to_s.scan(/<p class(.*)/))
     puts lyrics
     
-    set_notification(lyrics)
+    set_notification(lyrics, ressource)
     return @notification[:found]
   end
   
   def search_under_paksmile
-    @notification[:message] = "www.paksmile.com"
+    ressource = "www.paksmile.com"
     lyrics=""
     album=@track[:album].downcase
     album = album.gsub(' ','-') if album.split.size > 1
@@ -133,7 +133,7 @@ class LyricResource
       end    
     end
     
-    set_notification(lyrics)
+    set_notification(lyrics, ressource)
     return @notification[:found]
   end
   
@@ -167,11 +167,12 @@ class LyricResource
     return true
   end
   
-  def set_notification(lyrics)
+  def set_notification(lyrics, ressource)
     if lyrics.size > 50
       @notification[:lyric] = lyrics
       @notification[:found] = true
       @notification[:title] = "Erfolgreich"
+      @notification[:message] = ressource
       @notification[:activate] = 'com.apple.iTunes'
     end
   end
