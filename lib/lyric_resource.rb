@@ -77,7 +77,7 @@ class LyricResource
     end
     
     find_title = find_album_title_on_page(album_titles)
-    puts find_title
+
     unless find_title==""
       doc = open_link(find_title.to_s)
       doc.xpath('//div[@class="song"]').each do |line|
