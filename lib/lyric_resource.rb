@@ -54,13 +54,43 @@ class LyricResource
     # metrics.sort_by {|_key, value| value}
     # Dynamic Method call: http://paulsturgess.co.uk/articles/52-calling-dynamic-methods-in-ruby-on-rails
     
-    return true if search_under_paksmile    
+    return true if search_under_hindigeetmala
+    return true if search_under_paksmile
     return true if search_under_bollywoodlyrics
     return false
   end
   
+  def search_under_hindigeetmala
+    ressource = "http://hindigeetmala.com"
+    lyrics=""
+    album=@track[:album].downcase
+    album = album.gsub(' ','_') if album.split.size > 1
+    
+    url = "http://www.hindigeetmala.com/movie/#{album}.htm"
+    doc = open_link(url)
+    return false unless doc
+    
+    #save all album_titles[:title]=>:direct_weblink
+    album_titles={}
+    doc.xpath('//tbody/tr/td[@width="185"]/a').each do |ly|
+      album_titles["#{ly.to_s.scan(/>([^"]*)<\/a>/)}"] = "#{ressource}#{ly.to_s.scan(/href="([^"]*)"/)}"
+    end
+    
+    find_title = find_album_title_on_page(album_titles)
+    puts find_title
+    unless find_title==""
+      doc = open_link(find_title.to_s)
+      doc.xpath('//div[@class="song"]').each do |line|
+        lyrics += line
+      end
+    end
+    
+    set_notification(lyrics, ressource)
+    return @notification[:found]
+  end
+
   def search_under_bollywoodlyrics
-    ressource = "www.bollywoodlyrics.com"
+    ressource = "http://bollywoodlyrics.com"
     lyrics=""
     album=@track[:album].downcase
     album = album.gsub(' ','-') if album.split.size > 1
@@ -96,7 +126,7 @@ class LyricResource
   end
   
   def search_under_paksmile
-    ressource = "www.paksmile.com"
+    ressource = "http://paksmile.com"
     lyrics=""
     album=@track[:album].downcase
     album = album.gsub(' ','-') if album.split.size > 1
