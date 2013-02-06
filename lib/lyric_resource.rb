@@ -184,8 +184,8 @@ class LyricResource
     titles = LyricResource.saved_titles
     found = nil
     found = titles.select do |title|
-      title[1].include?(@track[:title]) &&
-      title[0].include?(@track[:album])
+      title[1].to_s == (@track[:title]) &&
+      title[0].to_s == (@track[:album])
     end
     return true unless found.empty? 
     return false
