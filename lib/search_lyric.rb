@@ -25,6 +25,7 @@ class SearchLyric
   end
   
   def add_lyric_to_itunes(lyric)
+    # filter lyrics
     lyric.to_s.gsub!("'", ' ')
     puts `osascript -e'tell application "iTunes"' -e'set lyrics of current track to "#{lyric}"' -e'end tell'`
   end

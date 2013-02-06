@@ -49,6 +49,11 @@ class LyricResource
   end
   
   def search_for_lyrics
+    # TODO:
+    # metrics = {"sitea.com" => 745, "siteb.com" => 9, "sitec.com" => 10 }
+    # metrics.sort_by {|_key, value| value}
+    # Dynamic Method call: http://paulsturgess.co.uk/articles/52-calling-dynamic-methods-in-ruby-on-rails
+    
     return true if search_under_bollywoodlyrics
     return true if search_under_paksmile    
     return false
@@ -76,15 +81,15 @@ class LyricResource
       doc = open_link(find_title.to_s)
         doc.xpath('//div[@class="entry-content"]/pre').each do |line|
           lyrics += line
+          puts "each line of pre: #{line}"
         end
-        
-      # #############################        TODO         ###########################  
-      # Tadap Tadap Example  
-      # unless lyrics.size > 50 
-      #  doc.xpath('//div[@class="entry-content"]/p').each do |line|
-      #    lyrics += "#{line}\n"
-      #  end
-      #end
+
+       if lyrics.size < 50 
+               puts "vor /p abfrage: #{lyrics}"
+        doc.xpath('//div[@class="entry-content"]/p').each do |line|
+          lyrics += "#{line}\n\n"
+        end
+      end
     end
     #lyrics = lyrics.delete(lyrics.to_s.scan(/<p class(.*)/))
     puts lyrics
