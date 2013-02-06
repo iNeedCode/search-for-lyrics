@@ -54,8 +54,8 @@ class LyricResource
     # metrics.sort_by {|_key, value| value}
     # Dynamic Method call: http://paulsturgess.co.uk/articles/52-calling-dynamic-methods-in-ruby-on-rails
     
-    return true if search_under_bollywoodlyrics
     return true if search_under_paksmile    
+    return true if search_under_bollywoodlyrics
     return false
   end
   
@@ -81,18 +81,15 @@ class LyricResource
       doc = open_link(find_title.to_s)
         doc.xpath('//div[@class="entry-content"]/pre').each do |line|
           lyrics += line
-          puts "each line of pre: #{line}"
         end
 
        if lyrics.size < 50 
-               puts "vor /p abfrage: #{lyrics}"
-        doc.xpath('//div[@class="entry-content"]/p').each do |line|
-          lyrics += "#{line}\n\n"
+         doc.xpath('//div[@class="entry-content"]/p').each do |line|
+           lyrics += line
+           lyrics += "\n"
         end
       end
     end
-    #lyrics = lyrics.delete(lyrics.to_s.scan(/<p class(.*)/))
-    puts lyrics
     
     set_notification(lyrics, ressource)
     return @notification[:found]
@@ -157,8 +154,8 @@ class LyricResource
     titles = LyricResource.saved_titles
     found = nil
     found = titles.select do |title|
-      title[0].include?(@track[:title]) &&
-      title[1].include?(@track[:album])
+      title[1].include?(@track[:title]) &&
+      title[0].include?(@track[:album])
     end
     return true unless found.empty? 
     return false
@@ -167,7 +164,7 @@ class LyricResource
   def save_lyric_to_textfile
     return false unless LyricResource.file_usable?
     File.open(@@filepath, 'a') do |file|
-      file.puts "#{[@track[:title],@track[:album]].join("\t")}\n"
+      file.puts "#{[@track[:album],@track[:title],@notification[:message]].join("\t")}\n"
     end
     return true
   end
