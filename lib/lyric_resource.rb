@@ -55,11 +55,45 @@ class LyricResource
     # Dynamic Method call: http://paulsturgess.co.uk/articles/52-calling-dynamic-methods-in-ruby-on-rails
     
     return true if search_under_hindigeetmala
+    return true if search_under_bollyrics
     return true if search_under_paksmile
     return true if search_under_bollywoodlyrics
     return false
   end
   
+  def search_under_bollyrics
+    ressource = "http://bollyrics.com"
+    lyrics=""
+
+    title = @track[:title]
+    album = @track[:album]
+
+    if title.split.size > 1
+      title = title.gsub(' ','-').downcase
+    end
+
+    if album.split.size > 1
+      album = album.gsub(' ','-').downcase
+    else
+      album.downcase!
+    end
+
+    url = "http://bollyrics.com/#{album}/#{title}-lyrics-movie-#{album}/"
+    doc = open_link(url)
+    return false unless doc
+
+    hop_over_first_p_tag = 0
+    doc.xpath("//div/p[not(@class='post-meta' or @class='must-log-in' or @class='post-date')]").each do |ly|
+      hop_over_first_p_tag += 1
+      next if hop_over_first_p_tag < 2
+      lyrics += ly
+      lyrics += "\n\n"
+    end
+
+    set_notification(lyrics, ressource)
+    return @notification[:found]
+  end
+
   def search_under_hindigeetmala
     ressource = "http://hindigeetmala.com"
     lyrics=""
