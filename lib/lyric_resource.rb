@@ -40,7 +40,7 @@ class LyricResource
     @notification={ :found=>false ,:subtitle => "#{@track[:title]} : #{@track[:album]}", :lyric => ""}
     if already_searched?
       @notification[:title] = "Bereits Erfolgreich gefunden!"
-      @notification[:message] = "Für erneute Suche Datensatz aus Textfile löschen"
+      @notification[:message] = "Fuer erneute Suche Datensatz aus Textfile loeschen"
       @notification[:activate] = 'com.apple.iTunes'
     else
       search_for_lyrics
